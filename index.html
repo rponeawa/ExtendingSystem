@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Extending System Partition</title>
+    <link rel="stylesheet" href="css/mdui.css" />
+</head>
+
+<body class="mdui-theme-primary-indigo mdui-theme-accent-pink">
+    <script>
+        function copyText(str){
+	        var w = document.createElement('input');
+	        w.value = str;
+	        document.body.appendChild(w);
+	        w.select();
+	        document.execCommand("Copy");
+	        w.style.display='none';
+        }
+        
+        function generateCmd(){
+            var size = Number(document.getElementById("inputtedSize").value)
+            if (size == 0) {
+                mdui.snackbar({
+                    message: '请先输入！',
+                    timeout: 1000
+                });
+            } else if (size < 1503) {
+                mdui.snackbar({
+                    message: '至少扩容至 1503 MB！',
+                    timeout: 1000
+                });
+            } else if (isNaN(size)) {
+                mdui.snackbar({
+                    message: '输入只能为整数！',
+                    timeout: 1000
+                });
+            } else {
+                var selectedVer = document.getElementById("select");
+                var cmd0 = "mkpart system ext2 923MB " + (size + 923) + "MB"
+                var cmd01 = "mkpart vbmeta   " + (size + 923) + "MB " + (size + 938) + "MB"
+                var cmd1 = "mkpart vbmeta &nbsp;&nbsp;" + (size + 923) + "MB " + (size + 938) + "MB"
+                var cmd2 = "mkpart cache ext4 " + (size + 938) + "MB " + (size + 1391) + "MB"
+                if (selectedVer.options[selectedVer.selectedIndex].value == 0) {
+                    var cmd3 = "mkpart userdata ext4 " + (size + 1391) + "MB" + " 15.6GB"
+                } else {
+                    var cmd3 = "mkpart userdata ext4 " + (size + 1391) + "MB" + " 62.5GB"
+                }
+                window.cmd0 = cmd0
+                window.cmd1 = cmd01
+                window.cmd2 = cmd2
+                window.cmd3 = cmd3
+                var finalCmd = cmd0 + "<br>" + cmd1 + "<br>" + cmd2 + "<br>" + cmd3 + "<br>"
+                document.getElementById("output").innerHTML = finalCmd
+                document.getElementById("btn1").removeAttribute("disabled")
+                document.getElementById("btn2").removeAttribute("disabled")
+                document.getElementById("btn3").removeAttribute("disabled")
+                document.getElementById("btn4").removeAttribute("disabled")
+                mdui.snackbar({
+                    message: '已生成',
+                    timeout: 1000
+                });
+            }
+        }
+
+        function copyLine1(){
+            copyText(cmd0)
+            mdui.snackbar({
+                    message: '已复制行 1',
+                    timeout: 1000
+                });
+        }
+
+        function copyLine2(){
+            copyText(cmd1)
+            mdui.snackbar({
+                    message: '已复制行 2',
+                    timeout: 1000
+                });
+        }
+
+        function copyLine3(){
+            copyText(cmd2)
+            mdui.snackbar({
+                    message: '已复制行 3',
+                    timeout: 1000
+                });
+        }
+
+        function copyLine4(){
+            copyText(cmd3)
+            mdui.snackbar({
+                    message: '已复制行 4',
+                    timeout: 1000
+                });
+        }
+    </script>
+    
+    <div class="mdui-appbar">
+        <div class="mdui-toolbar mdui-color-theme">
+            <a class="mdui-typo-title">扩容 System 分区命令生成</a>
+        </div>
+    <br>
+    <div class="mdui-container">
+        <div class="mdui-card">
+            <div class="mdui-card-primary">
+                <div class="mdui-card-primary-title">这个工具能干什么？</div>
+            </div>        
+            <div class="mdui-card-content mdui-typo">生成 parted 工具对于小米小爱老师的 System 分区的扩容命令。<br>对于详细的操作，你可以查看 <a href="https://bbs.midrai.cn/d/140">这篇教程</a></div>
+        </div>
+        <br>
+        <div class="mdui-card">
+            <div class="mdui-card-primary">
+                <div class="mdui-card-primary-title">工具</div>
+                <div class="mdui-textfield">
+                    <a>设备版本：</a>&nbsp;
+                    <select class="mdui-select" id="select">
+                        <option value="0" selected>Wifi 版</option>
+                        <option value="1">4G 版</option>
+                    </select>
+                    <br><br>
+                    <input class="mdui-textfield-input" maxlength="4" id="inputtedSize" placeholder="请输入需要扩容至的大小（MB）..."/>
+                </div>
+                <a onclick="generateCmd()" class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">生成</a>
+            </div>
+        </div>
+        <br>
+        <div class="mdui-divider"></div>
+        <br>
+        <div class="mdui-card">
+            <div class="mdui-card-primary">
+                <div class="mdui-card-primary-title">生成的命令</div>
+            </div>
+            <div class="mdui-card-content">
+                <div id="output">等待生成...</div><br>
+                <a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="btn1" onclick="copyLine1()" disabled>复制行 1</a>&nbsp;
+                <a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="btn2" onclick="copyLine2()" disabled>复制行 2</a>&nbsp;
+                <a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="btn3" onclick="copyLine3()" disabled>复制行 3</a>&nbsp;
+                <a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="btn4" onclick="copyLine4()" disabled>复制行 4</a>&nbsp;
+            </div>        
+        </div>
+    </div>
+    <br>
+        
+    <script src="js/mdui.js"></script>
+</body>
+
+<footer>
+    <div class="mdui-color-theme mdui-typo" id="content-footer"><p align="center"><br>Copyright rponeawa 2022<br><a href="https://midrai.cn">@CrackMiDrAiTeam</a><br><br></p></div>
+</footer>
+
+</html>
